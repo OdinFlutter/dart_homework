@@ -1,8 +1,9 @@
 import 'dart:math';
 import 'names.dart';
 import 'package:word_generator/word_generator.dart';
+import 'dart:async';
 
-void main() {
+Future<void> main() async {
   runTask1();
   runTask2();
   runTask3();
@@ -12,6 +13,8 @@ void main() {
   practiceTask2();
   practiceTask3();
   practiceTask4();
+  runFutureTasks();
+  runStreamsTasks();
 }
 
 void runTask1() {
@@ -141,7 +144,18 @@ void practiceTask2() {
   // КРОК 1: Створіть список з 10 кольорів українською мовою
   // Приклад: List<String> colors = ['червоний', 'синій', ...];
   // Виведіть початковий список
-  List<String> colors = ['червоний', 'синій', 'зелений', 'жовтий', 'фіолетовий', 'помаранчевий', 'рожевий', 'коричневий', 'чорний', 'білий'];
+  List<String> colors = [
+    'червоний',
+    'синій',
+    'зелений',
+    'жовтий',
+    'фіолетовий',
+    'помаранчевий',
+    'рожевий',
+    'коричневий',
+    'чорний',
+    'білий',
+  ];
   print(colors);
 
   // КРОК 2: Додайте ще 5 кольорів до списку
@@ -186,8 +200,14 @@ void practiceTask3() {
   // Парні числа 0-20: List.generate(21, (i) => i).where((num) => num % 2 == 0).toSet()
   // Кратні 3 (0-20): List.generate(21, (i) => i).where((num) => num % 3 == 0).toSet()
   // Виведіть обидві множини
-  Set<int> list1 = List.generate(21, (i) => i).where((num) => num % 2 == 0).toSet();
-  Set<int> list2 = List.generate(21, (i) => i).where((num) => num % 3 == 0).toSet();
+  Set<int> list1 = List.generate(
+    21,
+    (i) => i,
+  ).where((num) => num % 2 == 0).toSet();
+  Set<int> list2 = List.generate(
+    21,
+    (i) => i,
+  ).where((num) => num % 3 == 0).toSet();
   print(list1);
   print(list2);
 
@@ -212,7 +232,6 @@ void practiceTask3() {
   // КРОК 5: Виведіть загальну кількість унікальних чисел
   // Використайте: union.length
   print(union.length);
-
 }
 
 void practiceTask4() {
@@ -223,9 +242,16 @@ void practiceTask4() {
   // Використайте українські імена і оцінки 50-100
   // Виведіть словник
   Map<String, int> students = {
-    'Богдан': 87, 'Вікторія': 93, 'Григорій': 67, 'Дарина': 89,
-    'Євген': 52, 'Жанна': 96, 'Захар': 71, 'Інна': 84,
-    'Кирило': 58, 'Лариса': 90
+    'Богдан': 87,
+    'Вікторія': 93,
+    'Григорій': 67,
+    'Дарина': 89,
+    'Євген': 52,
+    'Жанна': 96,
+    'Захар': 71,
+    'Інна': 84,
+    'Кирило': 58,
+    'Лариса': 90,
   };
   print(students);
   // КРОК 2: Знайдіть середній бал
@@ -236,8 +262,9 @@ void practiceTask4() {
   // КРОК 3: Виведіть студентів з оцінкою вище середнього
   // Використайте: students.entries.where((entry) => entry.value > averageScore)
   // Переберіть результат циклом forEach
-  students.entries.where((entry) => entry.value > average).forEach((entry) =>
-      print('${entry.key}: ${entry.value}'));
+  students.entries
+      .where((entry) => entry.value > average)
+      .forEach((entry) => print('${entry.key}: ${entry.value}'));
 
   // КРОК 4: Додайте бонус +5 балів студентам з оцінкою менше 60
   // Використайте: students.updateAll((name, score) => score < 60 ? score + 5 : score)
@@ -259,4 +286,88 @@ void practiceTask4() {
   print(students.values.reduce((a, b) => a < b ? a : b));
   // - Кількість студентів: students.length
   print(students.length);
+}
+
+Future<String> fetchName() async {
+  await Future.delayed(Duration(seconds: 2));
+  return 'Олег';
+}
+
+Future<String> fetchAge() async {
+  await Future.delayed(Duration(milliseconds: 1500));
+  return '25';
+}
+
+String ageWord(int age) {
+  if (age % 10 == 1 && age % 100 != 11) return 'рік';
+  if ([2, 3, 4].contains(age % 10) && !(age % 100 >= 12 && age % 100 <= 14))
+    return 'роки';
+  return 'років';
+}
+
+Future<void> runSequential() async {
+  final stopwatch = Stopwatch()..start();
+  String name = await fetchName();
+  print('Мене звати $name');
+  String age = await fetchAge();
+  int ageInt = int.parse(age);
+  print('Мені $age ${ageWord(ageInt)}');
+  stopwatch.stop();
+  print('Час виконання (послідовно): ${stopwatch.elapsedMilliseconds} мс');
+}
+
+Future<void> runParallel() async {
+  final stopwatch = Stopwatch()..start();
+  var results = await Future.wait([fetchName(), fetchAge()]);
+  String name = results[0];
+  String age = results[1];
+  int ageInt = int.parse(age);
+  print('Мене звати $name');
+  print('Мені $age ${ageWord(ageInt)}');
+  stopwatch.stop();
+  print('Час виконання (паралельно): ${stopwatch.elapsedMilliseconds} мс');
+}
+
+Future<String> delayedCountdown(int seconds) async {
+  for (int i = seconds; i > 0; i--) {
+    print('$i...');
+    await Future.delayed(Duration(seconds: 1));
+  }
+  return 'Старт!';
+}
+
+void runFutureTasks() async {
+  await runSequential();
+  await runParallel();
+  String result = await delayedCountdown(3);
+  print(result);
+}
+
+Future<void> runStreamsTasks() async {
+  var stream = Stream<int>.fromIterable([1, 2, 3, 4, 5]);
+  await for (var value in stream) {
+    print(value);
+  }
+  stream = Stream<int>.fromIterable([1, 2, 3, 4, 5]);
+  stream.listen((value) {
+    print(value);
+  });
+
+  var countdown = Stream<int>.periodic(
+    Duration(seconds: 1),
+    (x) => x + 1,
+  ).take(10);
+  await for (var value in countdown) {
+    print('$value...');
+  }
+
+  var controller = StreamController<String>();
+  controller.stream.listen(
+    (value) => print(value),
+    onDone: () => print('Стрім завершено'),
+  );
+  controller.add('Hello');
+  controller.add('World');
+  controller.add('Dart');
+  await controller.close();
 }
